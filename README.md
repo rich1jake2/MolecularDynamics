@@ -284,7 +284,18 @@ The first part we'll present different simulations showing the perdiodic boundar
 
 Notice we already have the energy plots 
 #### xy plane 
+With the inititial conditions that we showed earilier 
 
+
+
+
+With the initial conditions 
+
+    d2 = True
+    bound = 10
+    randomPos = [ [1,2.5,0.], [1,7.5,0.]]
+    randomVel = [ [0,3.0,0.], [0,-3.,0.]]
+    nParticles = 2
 
 
 
@@ -308,7 +319,6 @@ Square grid insital conditions are
     randomPos =  np.vstack( [xx.flatten(), yy.T.flatten().T] ).T 
     randomPos = np.unique(randomPos, axis = 0)
     randomPos = np.append(randomPos, zerosss, axis = 1)
-    # print(randomPos)
     d2 = True
     randomVel = np.random.randint(2, size = (nParticles,1 ) ) - 1
     randomVel = np.append(randomVel , zerosss, axis =1 )
@@ -338,14 +348,12 @@ Cubed grid
 
 #### Square grid of particles beginning with Maxwell-Boltzman Distribution 
 Now we add more particles with maxwell distribution of velocities with the following initial conditions. This the part I am most ashamed of - I galaxy brained my way out of doing this the easisest way possible. 
-
-- we had to do some guessing about what the dimensions are of the kb constant with the reduced dimensions to get the proper maxwell distribution 
+we had to do some guessing about what the dimensions are of the kb constant with the reduced dimensions to get the proper maxwell distribution 
 
 
 
     nParticles = 100 
     bound = 30 
-    # bound = np.sqrt(nParticles)
     zerosss = np.zeros((nParticles,1))
     randomPos = np.zeros((nParticles, 3), dtype = float)
     x = np.linspace(bound/16, 15*bound/16,int(np.sqrt(nParticles)) )
@@ -361,7 +369,6 @@ Now we add more particles with maxwell distribution of velocities with the follo
     randomVel = []
     for k, mag in enumerate(randomVmag):
     thet = randomTheta[k]
-    
     randomVel.append([mag*np.cos(thet), mag*np.sin(thet), 0])
 
 
@@ -371,7 +378,7 @@ Now we add more particles with maxwell distribution of velocities with the follo
 With initialization conditions in 3D  - we will set T to be 200 for the maxwell distribution - we had to do some guessing about what the dimensions are of the kb constant with the reduced dimensions 
 
     nParticles = 125 
-    # bound = np.sqrt(nParticles)
+ 
     print(int(np.power(nParticles,1/3)))
     zerosss = np.zeros((nParticles,1))
     randomPos = [] # np.zeros((nParticles, 3), dtype = float)
