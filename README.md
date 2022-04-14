@@ -9,7 +9,6 @@ The most important part of the molecular dynamics simulations is the force accum
 
 '''
 class particle:
-
     # intializing the particle attributes 
     def __init__(self, m0 = 1.0, pos0 = [0,0,0], v0 = [0,0,0], fDegs = 3 ):
         self.mass = m0 
@@ -18,8 +17,8 @@ class particle:
         self.vel = np.array(v0)
         self.traj = [ pos0 ]
         self.energy = .5 * m0 * nr(v0)**2
-
 ''' 
+
 Note our natrual degrees of freedom will be 3, so if we want to go in two dimensions then we have to set our z vectors to 0. Thus, we have many commented intializing conditions that we can present. 
 
 
