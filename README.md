@@ -292,8 +292,54 @@ Notice we already have the energy plots
 
 
 
-#### Square grid of particles 
-Now we add more particles with maxwell distribution of velocities with the following initial conditions. This the part I am most ashamed of - I galaxy brained my way out of doing this the easisest way possible
+#### Square Grid similar intial velocities ->  Maxwell Boltzman Distribution
+Here we'll start with a square grid and figure out how long it takes the particles to get to a maxwell speed distribution and then we'll compare with a a cubed grid
+
+Square grid insital conditions are 
+
+    nParticles = 100 
+    bound = 30 
+    zerosss = np.zeros((nParticles,1))
+    randomPos = np.zeros((nParticles, 3), dtype = float)
+    x = np.linspace(bound/16, 15*bound/16,int(np.sqrt(nParticles)) )
+    y = np.linspace(bound/16, 15*bound/16,int(np.sqrt(nParticles)) )
+    z = np.zeros(nParticles)
+    xx, yy, zz = np.meshgrid(x,y,z)
+    randomPos =  np.vstack( [xx.flatten(), yy.T.flatten().T] ).T 
+    randomPos = np.unique(randomPos, axis = 0)
+    randomPos = np.append(randomPos, zerosss, axis = 1)
+    # print(randomPos)
+    d2 = True
+    randomVel = np.random.randint(2, size = (nParticles,1 ) ) - 1
+    randomVel = np.append(randomVel , zerosss, axis =1 )
+    randomVel = np.append(randomVel, zerosss, axis = 1) 
+   
+
+#### Cubed Grid: similar initial velocities -> Maxwell Boltzman Distributions
+
+Cubed grid 
+
+    nParticles = 125 
+    # bound = np.sqrt(nParticles)
+    print(int(np.power(nParticles,1/3)))
+    zerosss = np.zeros((nParticles,1))
+    randomPos = [] # np.zeros((nParticles, 3), dtype = float)
+    x = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    y = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    z = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    for i in x:
+        for j in y:
+            for k in z:
+                randomPos.append([i,j,k]) 
+    d2 = False
+    randomVel = np.random.randint(2, size = (nParticles,1 ) ) - 1
+    randomVel = np.append(randomVel , zerosss, axis =1 )
+    randomVel = np.append(randomVel, zerosss, axis = 1) 
+
+#### Square grid of particles beginning with Maxwell-Boltzman Distribution 
+Now we add more particles with maxwell distribution of velocities with the following initial conditions. This the part I am most ashamed of - I galaxy brained my way out of doing this the easisest way possible. 
+
+- we had to do some guessing about what the dimensions are of the kb constant with the reduced dimensions to get the proper maxwell distribution 
 
 
 
@@ -322,7 +368,7 @@ Now we add more particles with maxwell distribution of velocities with the follo
 
 #### Cubed Grid of Particles 
 
-With initialization conditions in 3D 
+With initialization conditions in 3D  - we will set T to be 200 for the maxwell distribution - we had to do some guessing about what the dimensions are of the kb constant with the reduced dimensions 
 
     nParticles = 125 
     # bound = np.sqrt(nParticles)
@@ -345,7 +391,6 @@ With initialization conditions in 3D
         thet = randomTheta[k]
         phi = randomPhi[k]
         randomVel.append([mag*np.cos(thet)*np.sin(phi), mag*np.sin(thet)*np.sin(phi), mag*np.cos(phi)])
-
 
 
 
