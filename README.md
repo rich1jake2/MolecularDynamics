@@ -5,6 +5,7 @@ The first thing we've done is developed the code. Since we've developed this pro
 
 ##  The Code  
 
+#### class and function dependence 
 The most important part of the molecular dynamics simulations is the force accumulation and the subsequen position and velocity updates. Here is the class we used for the particles. 
 
 
@@ -41,6 +42,7 @@ Then we do some initializing of the time step h, necessary lists to keep track o
     fPrev = np.zeros((nParticles,3))
     eList = []
 
+#### important functions 
 
 To calculate the force we introduce the following function - which is the derivative of the Lennard-Jones potential with respect to r - the euclidean distance between 2 particles 
     
@@ -82,8 +84,10 @@ Because we will be handling Periodic Boundary Conditions, the following function
             else: 
                 rf[ll] = rf[ll]
         return np.array(rf)
-  
+
+### The for loops 
 Next, the bulk of the work is being done by the following triple nested for loop. Outside for loop is for each time step, the nested for loop in this is used to calculate the accumulated forces on each particle. For a large number of timesteps I added a computer timeer to keep track of every two thousandths time step 
+
 
        for i in range(timeSteps):
         Fjk = np.zeros((nParticles, 3))
@@ -135,7 +139,13 @@ Next, the bulk of the work is being done by the following triple nested for loop
         eList.append([kE,pE,energyTotal])
         fPrev = Fjk
 
-We recognize the compuational ineffeciences of the for loops - there ought to be a better way to implment this with python classes AND python's ability to handle lists - however, a lack of time and experience has made this task difficult for myself. After this for loop the primary goal is to create an animation - the following lines are made to make the plotting as simple as possible 
+We recognize the compuational ineffeciences of the for loops - there ought to be a better way to implment this with python classes AND python's ability to handle lists - however, a lack of time and experience has made this task difficult for myself. 
+
+### Animation 
+#### energy and trajectory matrix changes
+
+
+After this for loop the primary goal is to create an animation - the following lines are made to make the plotting as simple as possible 
 
     eList = np.array(eList).T
     # getting the scatters for each particle 
@@ -143,11 +153,11 @@ We recognize the compuational ineffeciences of the for loops - there ought to be
     
 This next portion is meant to create the histogram plot and line plots for the velocity distribution. Note: we won't actually use matplotlib's histrogram plot - we will use their bar plot becasue the histrogram density attribute changes the scales that we want to deal with and I wanted the velocity distrubtion to look more like a probability distribution where 1 is the maximum value 
 
+#### velocity distribution plot 
+
     velocities.sort()
     binz = 20
     velXPlt , sep = np.linspace( 0, 20, binz, retstep = True )
-    #print(len(velXPlt))
-    #print(velXPlt)
     binNumsPlt = []
     separationList = []
     for j in range(len(velocities)) :
@@ -157,9 +167,184 @@ This next portion is meant to create the histogram plot and line plots for the v
                if el2 <= k and el2 > velXPlt[i-1]:
                    binNumsPlt[j][i] += 1/nParticles
 
+Again, there is a probably a better way to do this - this was the quickest and dirtiest way I could think of at the time. The next and final part is used for the animating - not as quick as it ought to be but it does the trick. Currently, Pillow writing to .gif files was the only way I could save the files properly because ffmpeg has been causing issues. 
+
+#### plot set up 
+    fig = plt.figure(figsize = (8,8))
+    camera = Camera(fig)
+
+    if d2 == True:
+
+        ax = fig.add_subplot(2,1,2)
+    else: 
+        ax = fig.add_subplot(1,1,1,projection = '3d')
+
+    ax2 = fig.add_subplot(3,2,1)
+    ax3 = fig.add_subplot(3,2,2)
+    scatters = ax.scatter(*(pltTrajs[0][0]))
+    coloring = []
+
+    for i in range(nParticles):
+        if i%3 == 0:
+            coloring.append('r')
+        if i%3 == 1:
+            coloring.append('b')
+        if i%3 ==2:
+            coloring.append('k')
+#### function animation update 
+    # Function to update with animation 
+    def update(i):
+        # clearing the previous scatter points 
+        ax.clear()
+        ax2.clear()
+        ax3.clear()
+
+        # setting the scatter points to be plotted - the trajectories were appened in a weird way
+        if d2 == False:
+            ax.scatter(pltTrajs.T[0][:i+1][-1],pltTrajs.T[1][:i+1][-1],pltTrajs.T[2][:i+1][-1], color = coloring, alpha = 1, s = 10 )
+
+            # Annotating Plot to make sure we can track the particles
+            ax.text(pltTrajs.T[0][:i+1][-1][2],pltTrajs.T[1][:i+1][-1][2],pltTrajs.T[2][:i+1][-1][2],s ='p2' )
+            ax.text(pltTrajs.T[0][:i+1][-1][5],pltTrajs.T[1][:i+1][-1][5],pltTrajs.T[2][:i+1][-1][5],s ='p5' )
+            ax.text(pltTrajs.T[0][:i+1][-1][9],pltTrajs.T[1][:i+1][-1][9],pltTrajs.T[2][:i+1][-1][9],s ='p9' )
+            ax.text(pltTrajs.T[0][:i+1][-1][22],pltTrajs.T[1][:i+1][-1][22],pltTrajs.T[2][:i+1][-1][22],s ='p22' )
+
+            # setting the plot attributes
+
+            ax.set_xlim(0,bound)
+            ax.set_ylim( 0, bound )
+            ax.set_zlim(0,bound)
+        else:
+            ax.scatter(pltTrajs.T[0][:i+1][-1],pltTrajs.T[1][:i+1][-1], color = coloring, alpha = 1, s = 10 )
+            # Annotating Plot to make sure we can track the particles
+
+            ax.text(pltTrajs.T[0][:i+1][-1][2],pltTrajs.T[1][:i+1][-1][2],s ='p2' )
+            ax.text(pltTrajs.T[0][:i+1][-1][5],pltTrajs.T[1][:i+1][-1][5],s ='p5' )
+            ax.text(pltTrajs.T[0][:i+1][-1][9],pltTrajs.T[1][:i+1][-1][9],s ='p9' )
+            ax.text(pltTrajs.T[0][:i+1][-1][22],pltTrajs.T[1][:i+1][-1][22],s ='p22' )
+
+            # setting the plot attributes
+            ax.set_xlim(0,bound)
+            ax.set_ylim( 0, bound )
+
+
+        ax2.plot(np.arange(0,i), eList[0][:i], label = 'ke')
+        ax2.plot(np.arange(0,i), eList[1][:i], label = 'pe')
+        ax2.plot(np.arange(0,i), eList[2][:i], label = 'eTot')
+
+
+        ax3.bar(velXPlt, binNumsPlt[i], width = sep)
+        ax3.plot(velXPlt, binNumsPlt[i], c = 'k')
+        ax3.set_ylim(0,1)
+        ax3.set_xlabel('Velocity')
+        ax3.set_ylabel('Prob')
+
+
+        ax2.set_title('Energy')
+        ax3.set_title('Velocity Distribution')
+
+        ax2.set_xlim(0, timeSteps)
+        ax2.set_ylim(np.min(eList[1]) - 1, np.max( eList[2]) + 1 )
+
+        ax2.legend()
+        ax2.set_ylabel('J')
+        ax2.set_xlabel('timeSteps')
+
+        # camera snap is for the animation 
+        camera.snap()
 
 
 
+    plt.legend()
+    ax2.set_aspect('auto')
+    if d2 == True:
+        ax.set_aspect('equal')
+    else:
+        ax.set_aspect('auto')
+
+    # In case camera works better for
+    # animat = camera.animate(blit = True, interval = 10)
+    
+    # Here the func animation works the best for me 
+    ani = animation.FuncAnimation(fig, update, frames = timeSteps, blit = False, repeat = True)
+    ani.save(f, writer = writergif)
+    
+    # animat.save('my.avi')
+    plt.show()
+    
+
+
+
+## Analysis 
+
+Here we'll present the simulations in accordance with the assignment
+
+### 18.3 - Testing and set up 
+The first part we'll present different simulations showing the perdiodic boundary conditions work in all directions, this is especially important for 3D since we haven't handled that extra dimension before 
+
+Notice we already have the energy plots 
+#### xy plane 
+
+
+
+
+#### z direction 
+
+
+
+#### Square grid of particles 
+Now we add more particles with maxwell distribution of velocities with the following initial conditions. This the part I am most ashamed of - I galaxy brained my way out of doing this the easisest way possible
+
+
+
+    nParticles = 100 
+    bound = 30 
+    # bound = np.sqrt(nParticles)
+    zerosss = np.zeros((nParticles,1))
+    randomPos = np.zeros((nParticles, 3), dtype = float)
+    x = np.linspace(bound/16, 15*bound/16,int(np.sqrt(nParticles)) )
+    y = np.linspace(bound/16, 15*bound/16,int(np.sqrt(nParticles)) )
+    z = np.zeros(nParticles)
+    xx, yy, zz = np.meshgrid(x,y,z)
+    randomPos =  np.vstack( [xx.flatten(), yy.T.flatten().T] ).T 
+    randomPos = np.unique(randomPos, axis = 0)
+    randomPos = np.append(randomPos, zerosss, axis = 1)
+    d2 = True
+    randomVmag = mx.rvs(size = nParticles, scale = a)
+    randomTheta = np.random.uniform(-2*np.pi, 2*np.pi,size = nParticles)
+    randomVel = []
+    for k, mag in enumerate(randomVmag):
+    thet = randomTheta[k]
+    
+    randomVel.append([mag*np.cos(thet), mag*np.sin(thet), 0])
+
+
+
+#### Cubed Grid of Particles 
+
+With initialization conditions in 3D 
+
+    nParticles = 125 
+    # bound = np.sqrt(nParticles)
+    print(int(np.power(nParticles,1/3)))
+    zerosss = np.zeros((nParticles,1))
+    randomPos = [] # np.zeros((nParticles, 3), dtype = float)
+    x = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    y = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    z = np.linspace(bound/16, 15*bound/16,int(np.power(nParticles,1/3) +1) )
+    for i in x:
+        for j in y:
+            for k in z:
+                randomPos.append([i,j,k]) 
+    d2 = False
+    randomVmag = mx.rvs(size = nParticles)
+    randomTheta = np.random.uniform(-2*np.pi, 2*np.pi,size = nParticles)
+    randomPhi = np.random.uniform(-2*np.pi, 2* np.pi, size = nParticles)
+    randomVel = []
+    for k, mag in enumerate(randomVmag):
+        thet = randomTheta[k]
+        phi = randomPhi[k]
+        randomVel.append([mag*np.cos(thet)*np.sin(phi), mag*np.sin(thet)*np.sin(phi), mag*np.cos(phi)])
 
 
 
