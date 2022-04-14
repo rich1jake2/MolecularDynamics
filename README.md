@@ -9,15 +9,15 @@ The most important part of the molecular dynamics simulations is the force accum
 
 '''
 
-class particle:
-    # intializing the particle attributes 
-    def __init__(self, m0 = 1.0, pos0 = [0,0,0], v0 = [0,0,0], fDegs = 3 ):
-        self.mass = m0 
-        self.dim = fDegs
-        self.pos = np.array(pos0)
-        self.vel = np.array(v0)
-        self.traj = [ pos0 ]
-        self.energy = .5 * m0 * nr(v0)**2
+    class particle:
+        # intializing the particle attributes 
+        def __init__(self, m0 = 1.0, pos0 = [0,0,0], v0 = [0,0,0], fDegs = 3 ):
+            self.mass = m0 
+            self.dim = fDegs
+            self.pos = np.array(pos0)
+            self.vel = np.array(v0)
+            self.traj = [ pos0 ]
+            self.energy = .5 * m0 * nr(v0)**2
         
        
 ''' 
